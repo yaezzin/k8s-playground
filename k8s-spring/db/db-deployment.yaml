@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-db
+spec:
+  selector:
+    matchLabels:
+      app: spring-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spring-db
+    spec:
+      containers:
+        - name: spring-db
+          image: mysql:8.0
+          envFrom:
+          - secretRef:
+              name: spring-db-secret
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: spring-db-data
+              mountPath: "/var/lib/mysql"
+          resources:   # 리소스 제한 추가
+            limits:
+              cpu: "500m"   
+              memory: "1Gi" 
+            requests:
+              cpu: "250m"  
+              memory: "512Mi" 
+      volumes:
+        - name: spring-db-data
+          persistentVolumeClaim:
+            claimName: spring-db-pvc
